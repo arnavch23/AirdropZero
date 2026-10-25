@@ -1,75 +1,95 @@
-# AirDrop-Zero (Phase 3: Modern Desktop GUI & Encrypted Mesh)
+# AirDrop-Zero 🚀
+> Cross-platform, air-gapped, zero-cloud peer-to-peer (P2P) encrypted file transfer mesh over local networks.
 
-AirDrop-Zero is a zero-configuration, secure local network file sharing tool built with pure Python, **CustomTkinter**, and **Fernet AES-128-CBC + HMAC-SHA256**.
+AirDrop-Zero enables instant, secure file discovery and chunked streaming between devices across different operating systems (Windows, macOS, Linux) without requiring internet connectivity, third-party cloud servers, or Bluetooth pairing.
 
----
 
-## Features
-
-* **Phase 1 (Networking Core)**:
-  * UDP broadcast peer discovery over port `6000` with cross-platform socket options (`SO_REUSEADDR` / `SO_REUSEPORT` / Windows `SIO_UDP_CONNRESET`).
-  * TCP file chunk streaming (64 KB chunks).
-* **Phase 2 (End-to-End Encryption)**:
-  * AES authenticated encryption (`cryptography.fernet`) with deterministic key derivation from a shared mesh passphrase via **PBKDF2-HMAC-SHA256** (100,000 iterations).
-  * Framed encrypted chunks with length prefix and EOF sentinel.
-  * Bit-for-bit **SHA-256 integrity verification** on reconstructed files before ACK confirmation.
-* **Phase 3 (Modern Desktop GUI)**:
-  * Dark-mode interface built with **CustomTkinter**.
-  * **Top Bar**: Live node name, assigned TCP port, local IP, encryption status, and discovery toggle indicator (`● Discovery: Active`).
-  * **Nearby Peers Panel**: Live dynamic list of discovered local peers (refreshed every 2s). Click to select target.
-  * **Transfer Card**: Native 'Browse File' picker, 'Send Encrypted File' button, live progress bar, speed indicator (MB/s), and SHA-256 confirmation.
-  * **Activity & Security Audit Log**: Scrollable real-time log of discovery heartbeats, inbound/outbound encrypted streams, and cryptographic verification results.
-  * **Non-Blocking Threading**: Network listeners and transfers run in background `threading.Thread` instances with a thread-safe UI queue dispatch so the GUI never freezes.
+## 🛠️ Features & Architecture
+- **Zero-Cloud / Air-Gapped**: Functions entirely on local subnets or mobile hotspots (even with cellular data disabled).
+- **Automated Peer Discovery**: UDP broadcast beacons over port `6000` allow nearby nodes to discover each other dynamically.
+- **High-Speed Chunk Streaming**: Dedicated TCP socket channels transmit chunked binary payloads with flow control.
+- **End-to-End Security**: Payload encryption using symmetric AES-128-CBC via Fernet cryptography.
+- **Bit-for-Bit Integrity Verification**: Real-time SHA-256 checksum computation and validation upon completion.
+- **Cross-Platform Modern UI**: Clean dark-mode interface built with CustomTkinter.
 
 ---
 
-## Quick Start: Launching the Desktop GUI
+## 📋 Prerequisites
+- **Python 3.10+** installed on all participating machines.
+- All devices connected to the **same local Wi-Fi or mobile hotspot**.
 
-To test on your laptop, open two separate terminals in the project folder:
+---
 
-### Terminal 1 (Alice):
-```powershell
+## 📥 1. Clone the Repository
+On each computer, open a terminal and run:
+```bash
+git clone [https://github.com/arnavch23/AirdropZero.git](https://github.com/arnavch23/AirdropZero.git)
+cd AirdropZero
+💻 2. Setup & Execution
+🪟 Windows Setup
+Open Command Prompt or PowerShell inside the AirdropZero directory:
+
+Install dependencies:
+
+DOS
+py -m pip install -r requirements.txt
+(Or pip install -r requirements.txt if python is added to your PATH)
+
+Launch the application:
+
+DOS
+py gui.py --name "Windows-PC"
+
+🍎 macOS & Linux Setup
+Open Terminal inside the AirdropZero directory:
+
+Create and activate a virtual environment (recommended):
+
+Bash
+python3 -m venv venv
+source venv/bin/activate
+Install dependencies:
+
+Bash
+pip install -r requirements.txt
+Launch the application:
+
+Bash
+python3 gui.py --name "MacBook"
+
+🧪 3. How to Test
+A. Single Machine Local Testing (Simulation)
+Open two separate terminal windows on your laptop to simulate two peers:
+
+Terminal 1 (Alice):
+
+Bash
 python gui.py --name Alice --port 5001
-```
+Terminal 2 (Bob):
 
-### Terminal 2 (Bob):
-```powershell
+Bash
 python gui.py --name Bob --port 5002
-```
+B. Multi-Laptop Offline Demo (Real World Demonstration)
+Turn on a mobile hotspot on a smartphone.
 
-*(You can also use `python app.py --gui --name Alice --port 5001`)*
+Turn Mobile Data OFF on the phone to prove complete offline functionality.
 
-### How to Transfer:
-1. In Alice's GUI, Bob will appear in the **Nearby Peers** list on the left.
-2. Click on **👤 Bob** to select him as the transfer target.
-3. Click **Browse File...** to select any file from disk.
-4. Click **Send Encrypted File**.
-5. Watch the progress bar stream encrypted chunks in real time. Bob's GUI will show the inbound transfer, verify the SHA-256 checksum, and log the integrity match!
-6. Click **Open Received Files** in Bob's GUI to view the saved file.
+Connect Laptop A and Laptop B to the hotspot.
 
----
+Run the app on both machines:
 
-## CLI Mode
+Laptop A: python gui.py --name Laptop-A
 
-If you prefer terminal-only operation without GUI:
-```powershell
-python app.py --name Alice --port 5001
-python app.py --name Bob --port 5002
-```
+Laptop B: python gui.py --name Laptop-B(Port defaults to 5001 automatically when on separate physical IPs).
 
----
+Select the target device from Nearby Peers, click Browse File, and press Send Encrypted File.
 
-## Verification Test Suites
-
-1. **Phase 2 Crypto & Core Networking Test**:
-   ```powershell
-   python test_networking_core.py
-   ```
-2. **Phase 3 GUI Integration Test**:
-   ```powershell
-   python test_gui_integration.py
-   ```
-3. **Dual-Terminal Simulation Test**:
-   ```powershell
-   python demo_two_terminals.py
-   ```
+📂 Project Structure
+Plaintext
+AirdropZero/
+├── gui.py                  # CustomTkinter modern dark-mode GUI
+├── discovery.py            # UDP beacon broadcasting & peer listener (Port 6000)
+├── transfer.py             # TCP streaming socket engine (Sender & Receiver)
+├── crypto_utils.py         # AES encryption & SHA-256 checksum utilities
+├── requirements.txt        # Runtime dependencies
+└── README.md               # Documentation & setup guide
